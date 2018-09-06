@@ -101,3 +101,53 @@ cat spaces\ in\ this\ filename
 Using the TAB key only works if the filename has enough distinct characters in it for the system to auto complete the filename. 
 If we had other files in this directory with names like spaces in and spaces, for auto complete to work for our file spaces in 
 this filename we would need to type cat spaces in t then press TAB to auto complete the file we want to cat.
+
+### Bandit Level 4 → Level 5
+
+Find human readable files and dealing with dashed (-) file names.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit4
+password: pIwrPrtPN36QITSp3EQaw936yaFoFgAB
+
+Commands used for this level:
+ls – List information about all the file’s include hidden files that start with (.).
+cd – change directory
+du – estimate file space usage
+file – determine file type
+cat – used to view contents of a file.
+| – this is the pipe command and used to pass info from one command to another.
+
+Step 1.
+After logging in type ls
+ You will see a directory named inhere (you can tell its a directory instead of a file because it is a different color).
+
+Step 2.
+  Type ls and we will see multiple files that start with a dash. We need to find the only human readable file. Before we
+  do that lets type man du to learn what du does. We will see that du estimates file space and when used with the -h will
+  print sizes in human readable format.
+
+Now that we know we need to use du -h we need to use file command at the same time to find that human readable file. What 
+we do is use the pipe command to pipe the du command into the file command. We also need to deal with the dashed (-) file 
+name so we need to tell file command to work in the current directory by typing ./ just like we did in level one.
+
+Type du -h | file ./*     (the * is used as a wildcard to search all files)
+
+./-file00: data
+./-file01: data
+./-file02: data
+./-file03: data
+./-file04: data
+./-file05: data
+./-file06: data
+./-file07: ASCII text
+./-file08: data
+./-file09: data
+We find that -file07 is the human readable ASCII file.
+
+Step 3.
+
+Now all we need to do is cat -file07, but remember we are dealing with a dashed file name so we need to tell cat the exact place of the file by using ./
+
+Type cat ./-file07 and the password for level 5 is displayed.
+koReBOKuIDDepwhWk7jZC0RTdopnAYKh
