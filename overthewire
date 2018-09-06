@@ -27,3 +27,77 @@ Step 2.
   Type cat readme
   The contents of the file has the password for level 1 in it.
 boJ9jbbUNNfktd78OOpsqOltutMc3MY1
+
+### Bandit Level 1 → Level 2
+
+Viewing files with dashed (-) filenames.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit1
+password: boJ9jbbUNNfktd78OOpsqOltutMc3MY1
+
+Commands used for this level:
+cat – used to view contents of a file.
+ls – List information about the FILE’s (the current directory by default).
+
+Step 1.
+After logging in type ls
+ You will see a file named –
+
+Step 2.
+Now from the last level we might think that typing cat – would allow you to view the contents of the file, but it wont.
+
+Usage of dash (-) in place of a filename
+Using - as a filename to mean stdin/stdout is a convention that a lot of programs use. When cat sees the string – as a filename, it treats it as a synonym for stdin.
+What will happen in our case is cat – echoes stdin, in this case keyboard user input, to stdout, the terminal window. Go ahead and try it to see what happens.
+(if you are stuck after doing this press CTRL C to exit back to bash prompt).
+
+The other problem is that Linux command options usually start with a dash ( - ). If you try to type that filename on a command line, the command might think you’re trying to type a command option.
+
+To get around this, you need to alter the way that cat sees the file as a regular file by “hiding” the dash from cat. The best way to do this is to cat directly to the file location by prefixing the filename with ./ or /home/bandit1/. ./ means “look in the current directory”. and /home/bandit1/ means “look in directory /home/bandit1.
+
+Type cat ./-
+  The contents of the file has the password for level 2 in it.
+CV1DtqXWVFXTvM2F0k09SHz0YwRINYA9
+
+### Bandit Level 2 → Level 3
+
+Dealing with files with spaces in the file name.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit2
+password: CV1DtqXWVFXTvM2F0k09SHz0YwRINYA9
+
+Commands used for this level:
+cat – used to view contents of a file.
+ls – List information about the FILE’s (the current directory by default).
+
+Step 1.
+After logging in type ls
+ You will see a file named spaces in this filename
+
+ Step 2.
+Linux does not handle spaces in file names well so if you do type
+cat spaces in this filename, cat will think you are trying to view the contents of file spaces, file in, file this, 
+and file filename and those separate files do not exist.
+
+One of the reasons Linux does not handle spaces in file names is that bash scripting uses spaces as a NULL terminator 
+to break a script at a certain point. It is considered a best practice to not use spaces in filenames in Linux, 
+underscores (_) are generally used in place of spaces. spaces_in_this_filename would be a better way to name this file 
+if you where to create it.
+
+To get around this we need to “hide” the spaces from cat, just like in the Level 1. To do this we simply type a backslash (\) 
+in the filename before each space.
+
+Type cat spaces\ in\ this\ filename.
+The contents of the file has the password for level 3 in it.
+UmHadQclWmgdLOKQ3YNgjWxGoRMb5luK
+
+Another quick way around typing the full filename out is to use the TAB key. The TAB key in Linux and most command line 
+interperters is used to auto complete the full filename or full command name from only the first few characters being entered.
+We could have just done cat s and pressed the TAB key and it would auto complete the filename with backslashes in it for us.
+cat spaces\ in\ this\ filename
+
+Using the TAB key only works if the filename has enough distinct characters in it for the system to auto complete the filename. 
+If we had other files in this directory with names like spaces in and spaces, for auto complete to work for our file spaces in 
+this filename we would need to type cat spaces in t then press TAB to auto complete the file we want to cat.
