@@ -102,6 +102,34 @@ Using the TAB key only works if the filename has enough distinct characters in i
 If we had other files in this directory with names like spaces in and spaces, for auto complete to work for our file spaces in 
 this filename we would need to type cat spaces in t then press TAB to auto complete the file we want to cat.
 
+### Bandit Level 3 → Level 4
+
+Viewing hidden files.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit3
+password: UmHadQclWmgdLOKQ3YNgjWxGoRMb5luK
+
+Commands used for this level:
+ls -a – List information about all the file’s include hidden files that start with (.).
+cd – change directory
+cat – used to view contents of a file.
+
+Step 1.
+After logging in type ls
+ You will see a directory named inhere (you can tell its a directory instead of a file because it is a different color).
+
+ Step 2.
+Change directory to inhere by typing cd inhere
+
+ Step 3.
+Now in the /home/bandit3/inhere directory go ahead and type ls.
+Nothing will be displayed because the file we are looking for is hidden by placing a . in front of the file name. Placing a period as the first character of a file name is how you hide files in Linux.
+We need to use ls -a , the dash a means display all files including hidden files.
+We will now see the .hidden file.
+Type cat .hidden and the password for level 4 is displayed.
+pIwrPrtPN36QITSp3EQaw936yaFoFgAB
+
 ### Bandit Level 4 → Level 5
 
 Find human readable files and dealing with dashed (-) file names.
@@ -151,3 +179,399 @@ Now all we need to do is cat -file07, but remember we are dealing with a dashed 
 
 Type cat ./-file07 and the password for level 5 is displayed.
 koReBOKuIDDepwhWk7jZC0RTdopnAYKh
+
+### Bandit Level 5 → Level 6
+
+Find and display human readable files by size in bytes and not executable.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit5
+password: koReBOKuIDDepwhWk7jZC0RTdopnAYKh
+
+Commands used for this level:
+ls – List information about the FILE’s (the current directory by default).
+cd – change directory.
+man – an interface to the on-line reference manuals
+find – search for files in a directory.
+/ –  here we use it to search man pages
+cat – used to view contents of a file.
+
+Step 1.
+After logging in type ls
+You will see a directory named inhere (you can tell its a directory instead of a file because it is a different color). 
+
+
+Step 2.
+Type ls and we will see multiple directories that we need to search for a human readable file, that is 1033 bytes, and is not executable.
+
+To do this we need to use the find command with some options.
+2a. Type man find to view the man page for find command.
+To make finding this solution easier we can search the man page by typing    forward slash (/) once in the man page (the / is used to open the search option). Now type readable after the / and we see how to use the -readable option.
+2b. We also need to find how to use size and executable options so press / again and search for size. This shows we need to use -size n (n being the size we are looking for followed by “c” to use bytes).
+2c. Now press / again and search for executable and we see we need to use -executable as our last option but remember that we are looking for not executable so we will use ! in front of the -executable option (! is the computer programming symbol for NOT)
+From our searching we now know our command will be find -readable -size 1033c ! -executable
+Type find -readable – size 1033c ! -executable
+We see our only file that fits our search options displayed is  ./maybehere07/.file2 
+
+
+Step3.
+Last step is simply to display our found file.
+ Type cat ./maybehere07/.file2 and the password for level 6 is displayed.
+DXjZPULLxYr17uwoI01bNLQbtFemEgo7
+
+### Bandit Level 6 → Level 7
+
+Find a file somewhere on a server that is owned by a user, a group, and by size.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit6
+password: DXjZPULLxYr17uwoI01bNLQbtFemEgo7
+
+Commands used for this level:
+find – search for files in a directory.
+cat – used to view contents of a file.
+grep – searches the named input files.
+
+Step 1.
+We need to find a file owned by user bandit7, group bandit6, and is 33 bytes in size.
+Lets use man page for find to find our options to use.
+1a. Type man find and in the man page type /-user we see that to find by user we need to add -user username option. (pressing n after the search will jump to the next found matched search term and SHIFT + n will search backwards)
+1b. Still in find man page type /group and we see that we need -group groupname to search by group.
+1c. While still in find man page /size to see we need to add -size n (n being size of the file with a “c” for bytes)
+We now know our command will be find -user bandit7 -group bandit6 -size 33c
+
+Step 2.
+Type our command find -user bandit7 -group bandit6 -size 33c
+We see we have an issue with what we find which is nothing because we are not searching the entire server, so we should do a find at the root of the server by adding a / after find (/ is root of the file system, all other files are under root)
+2a. Type find / -user bandit7 -group bandit6 -size 33c 
+You can scroll through the output and find our file by looking for the one file that does not display Permission denied which is /var/lib/dpkg/info/bandit7.password and then cat that file but lets go further and clean up our output to have the computer find the exact file for us so we do not have to search through all the lines.
+2c. What well do is use 2>&1 which is a way of redirecting error messages.
+
+2 is the default file descriptor for stderr.
+1 is the default file descriptor for stdout.
+>& is shell syntax for “fold the previous (first) file descriptor into the forthcoming (second) file descriptor.”
+There are always three default files open, stdin (the keyboard), stdout (the screen), and stderr (error messages output to the screen). These, and any other open files, can be redirected. Redirection simply means capturing output from a file, command, program, script, or even code block within a script and sending it as input to another file, command, program, or script.
+
+In other words, it will send any error messages to whatever you have currently defined for output. Normal output would be your screen, but you can set this so output is going to a file or command. We will be sending the output to the grep command. Lets do a man on grep
+
+2d. type man grep
+type /invert we find that -v option will invert the sense of matching.
+type /-F we find that -F option will match a given pattern and we know we want to remove any output that shows Permission denied so we will use Permission as our pattern to match.
+So breaking this down we want to match using -F Permission
+and then we don’t want to see anything that displays Permission so we invert our -F matching with -v to not show any files that say Permission.
+2f. Our final command to find our exact file will be:
+find / -user bandit7 -group bandit6 -size 33c 2>&1 | grep -F -v Permission
+ We see now our one file is at /var/lib/dpkg/info/bandit7.password
+
+Step 3. type cat /var/lib/dpkg/info/bandit7.password and our password for level 7 is displayed.
+HKBPTKQnIay4Fw76bEy8PVxKEDQRKTzs
+
+### Bandit Level 7 → Level 8
+
+Find the password in a large text file with a matching string.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit7
+password: HKBPTKQnIay4Fw76bEy8PVxKEDQRKTzs
+
+Commands used for this level:
+ls – List information about the FILE’s (the current directory by default).
+cat – used to view contents of a file.
+grep – searches the named input files.
+
+Step 1.
+After logging in type ls
+You will see a file data.txt
+
+Step 2.
+In that data.txt file we need to find the word millionth and our password will be next to it. 
+Go ahead and try a cat data.txt to see what happens.We get a giant stream of data, we need to filter that data.We know from the last level that grep is great for searching for a matched string. Lets pipe our cat of data.txt to grep and match the word millionth.
+
+Type cat data.txt | grep millionth and our password for level 8 is displayed.
+cvX2JJa4CFALtqS87jk27qwqGhBM9plV
+
+### Bandit Level 8 → Level 9
+
+Find string of text in a text file that is the only line that does not have a duplicate line.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit8
+password: cvX2JJa4CFALtqS87jk27qwqGhBM9plV
+
+Commands used for this level:
+ls – List information about the FILE’s (the current directory by default).
+sort – sort lines of text files print to stdout
+uniq – report or omit repeated lines
+
+Step 1.
+After logging in type ls
+You will see a file data.txt
+
+Step 2.
+In that data.txt file we need to find the one line that does not repeat, that line will be our password for the next level.
+You could start with a cat of the file and find that the file is huge, it would take forever to search to find the one non-repeating line with out a tool. Let’s figure out what command we could use to sort the data and find this line. Lets look at the man page for sort. We see that sort will sort the text for us in order. Let’s do a sort on data.txt.
+2a. Type sort data.txt
+We see that sort has sorted all the text in our data.txt file and we see that we do have many repeating lines of data. We need to somehow find the one non-repeating line still. If we go back to the man page on sort and scroll to the bottom we see that it says to SEE ALSO uniq. Let’s do a man uniq. We see that uniq is used to filter adjacent matching lines from INPUT. We also see that when uniq is used with -u option it will print only unique lines of text. Lets sort the data.txt file and pipe into uniq.
+2b. Type sort data.txt | uniq -u and our password for level 9 is displayed.
+ UsvVyFSfZZWbi6wgC7dAFyFuR6jQQUhR
+ 
+ ### Bandit Level 9 → Level 10
+ 
+ Find a string of human-readable lines in a text file.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit9
+password: UsvVyFSfZZWbi6wgC7dAFyFuR6jQQUhR
+
+Commands used for this level:
+ls – List information about the FILE’s (the current directory by default).
+cat – used to view contents of a file.
+strings – print the strings of printable characters in files.
+grep – print lines matching a pattern.
+
+Step 1.
+After logging in type ls
+You will see a file data.txt
+
+Step 2.
+In that data.txt file we need to find a string that is human-readable and starts with the = character. Lets do a cat on the data.txt file to see what the data looks like.
+Type cat data.txt
+We see that we have a file with mostly garbled data. Now we could just scroll up through the data and look for the = characters along with the only human-readable text to find the password but lets use some tools to find our password.
+
+Step 3.
+We know we are looking for a string of characters so lets do a man strings.
+We see that strings prints the printable character sequences that are at least 4 characters long. Perfect for looking for a string of character that would be our password.
+Type strings data.txt
+We can clearly see our password here but lets narrow it down to be sure.
+
+Step 4.
+We know we are looking for a string that starts with = characters and grep is a tool that we can use to print lines of a matching character. Lets do a man grep.
+We see that grep searches the named input file for lines containing a match to a given pattern. Lets pipe our strings command to grep with a “=” as a search pattern.
+Type strings data.txt | grep “=” and our password for level 10 is displayed but we can shorten our ouput even more by using “==” as a search pattern for grep.
+4a. Type strings data.txt | grep “==” and we get our full desired output.
+truKLdjsbJ5g7yyJ2X2R0o3a5HQJFuLk
+
+### Bandit Level 10 → Level 11
+
+View base64 encoded data.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit10
+password: truKLdjsbJ5g7yyJ2X2R0o3a5HQJFuLk
+
+Commands used for this level:
+ls – List information about the FILE’s (the current directory by default).
+cat – used to view contents of a file.
+base64 – encode/decode data and print to standard output (use with -d to decode)
+
+Step 1.
+After logging in type ls
+You will see a file data.txt
+
+Step 2.
+In that data.txt file we need read some base64 encoded data.
+Type cat data.txt
+We see what looks like our password but is much longer than our password really is. We need to decode the text to get our password.  
+To decode the data we need to learn about base64 encoded data.
+http://en.wikipedia.org/wiki/Base64
+We learn that base64 is a binary to text encoding scheme. What base64 does is it encodes and decodes data into its base64 value.
+The steps base64 encode takes are:
+1. Each letter of text in a string of characters (a word) is converted to its ASCII decimal value. We will use the word “The” as our example. Looking up the ASCII chart we see the decimal values for T = 84, h = 104, e = 101.
+2. Each decimal value is then converted to binary. To convert to binary from decimal you just divide the number by 2 repeatedly until you reach a value of 0. If your division has a remainder then your bit gets set to 1.
+2/84 = 42 remainder 0
+2/42 = 21 remainder 0
+2/21 = 10 remainder 1
+2/10 =   5 remainder 0
+2/5   =   2 remainder 1
+2/2   =   1 remainder 0
+2/1   =   0 remainder 1
+binary value for T is 01010100
+binary value for h is 01101000
+binary value for e is 01100101
+3. The binary values for each word is then combined into a string of binary 010101000110100001100101 and broken up into strings of 6 bits 010101,000110,100001,100101
+4. Each 6 bit string is then converted back to decimal value.
+010101 = 21
+000110 =   6
+100001 = 33
+100101 = 37
+5. Finally those decimal values are matched to the base64 index values.
+21 = V
+6  = G
+33 = h
+37 = l
+
+Step 3.
+It just so happens that Linux has a base64 tool. Lets read the man page by typing man base64. We see that this command when used with a -d will decode base64 data.
+Type base64 -d data.txt and our decoded base64 data is display: The password is IFukwKGsFW8MOq3IRFqrxE1hxTNEbUPR
+
+### Bandit Level 11 → Level 12
+
+Decoding ROT13
+
+Host name is bandit.labs.overthewire.org 
+User: bandit11
+password: IFukwKGsFW8MOq3IRFqrxE1hxTNEbUPR
+
+Commands used for this level:
+ls – List information about the FILE’s (the current directory by default).
+cat – used to view contents of a file.
+tr – translate or delete characters.
+
+Step 1.
+After logging in type ls
+You will see a file data.txt
+
+Step 2.
+In that data.txt file we need read some ROT13 encoded data.
+http://en.wikipedia.org/wiki/ROT13
+ROT13 is a simple letter substitution cipher that replaces a letter with the letter 13 letters after it in the alphabet.
+Linux has a command called tr so lets type man tr to learn about this command.
+We see that tr will translate, squeeze, and/or delete characters from standard input, writing to standard output. With this command we can tell it to rotate an input of characters 13 letters after by using tr with a-zA-Z n-za-mN-ZA-M.
+What this does is it tells the tr command to match the input letters from a-z and A-Z (lower case and upper) to 13 characters after those being n-za-mN-ZA-M. We need to type the second part this way because the command does not know that it should go back to a after hitting z so 13 characters after a is n and so on then if it goes past z to start at a again.
+
+Step3.
+Now all we need to do is cat data.txt and pipe it to the tr command with our ROT13 cipher.
+Type cat data.txt | tr a-zA-Z n-za-mN-ZA-M and our decoded ROT13 data is displayed: 
+The password is 5Te8Y4drgCRfCx8ugdwuEX8KFC6k2EUu
+
+### Bandit Level 12 → Level 13
+
+Reverse a hexdump and uncompress the data.
+
+Host name is bandit.labs.overthewire.org 
+User: bandit12
+password: 5Te8Y4drgCRfCx8ugdwuEX8KFC6k2EUu
+
+Commands used for this level:
+ls – List information about the FILE’s (the current directory by default).
+mkdir – make directories.
+cp – copy files and directories.
+cd – change directory.
+file – determine file type.
+xxd – make a hexdump or do the reverse. 
+mv – move (rename) files.
+cat – used to view contents of a file.
+gzip – compress or expand files.
+bzip2 – a block-sorting file compressor. 
+tar – The GNU version of the tar archiving utility.
+
+Step 1.
+After logging in type ls
+You will see a file data.txt
+
+Step 2.
+Type cat data.txt 
+In that data.txt file we see a bunch of numbers and letters aligned in rows. These characters aligned like this are known as a hexdump. A hexdump is a hexadecimal view of computer data, from RAM or from a file or storage device.
+http://en.wikipedia.org/wiki/Hex_dump
+Hexdump’s are a very good way to reverse engineer computer programs.
+Here is a very interestiong TED talk by Mikko Hypponen explaining viruses and showing some hexdump examples at 1:45 and 10:00.
+What we need to do is copy our data.txt file over to /tmp directory because the lab will not let us write data to the directory that the data.txt file is currently in.
+First command we need to use to copy the file is mkdir which will make a directory we can do what we want in. This is created under the /tmp directory because files in the /tmp directory can be set to be deleted at reboot or set intervals easily.
+Type  mkdir /tmp/yourname (where yourname is anything you’d like).
+
+Step 3.
+Next we need to copy our file over to our new directory. 
+Type cp data.txt /tmp/yourname (where yourname is what you chose).
+
+Step 4. 
+Now we can move over to our created directory and uncompress our file.
+Type cd /tmp/yourname and do an ls to make sure your file copied over to here.
+
+Step 5.
+First thing we need to is find out what kind of file we have.
+Type file data.txt
+We see that we currently have a ASCII file but since we know we have a hexdump we need to convert the file to binary.
+
+Step 6.
+We need to reverse the ASCII file to a hexdump and Linux has a command to do just that.
+Type man xxd
+We see the second line under description says xxd can also convert a hex dump back to its original binary form and to do this we look further down the man page and see we need to use -r with xxd to reverse the hexdump. 
+Type xxd -r data.txt and we see that our data file output has changed but it has not been saved so we need to tell xxd to convert and write this info to a new file for us.
+Type xxd -r data.txt newdata 
+What this command does is it converts our file back to binary with xxd -r command and creates a new file called newdata without a .txt extension.
+
+Step 7.
+We now have a new file without an extension and we need to find out what kind of file it is. We can use the file command to do this.
+Type file newdata
+We see that we have a gzip file.
+
+Step 8.
+Type man gzip and we find that gzip is a compression tool that uses .gz as a defualt file extension and when used with -d will decompress a file.
+We can now add our .gz file extension to our file by using the move command.
+Type mv newdata newdata.gz
+Now we can uncompress our gzip file using gzip -d.
+
+Type gzip -d newdata.gz
+
+Step 9.
+We can now check to see what type of file was uncompressed.
+Type file newdata 
+We see we now have a bzip2 file.
+
+Step 10.
+Lets do the same as before type man bzip2 to find what extension bzip2 uses and what option to use to decompress. We see we need to use .bz2 and -d with our bzip2 command to decompress.
+Type mv newdata newdata.bz2 to add our bz2 file extension.
+
+Type bzip2 -d newdata.bz2 to uncompress our bzip2 file
+
+Step 11.
+We can now check to see what type of file was uncompressed.
+Type file newdata 
+We see we now have a gzip file again.
+
+Step 12.
+Lets do the same again but this time we already know what we use for gzip files.
+Type mv newdata newdata.gz to add our gz file extension.
+
+Type gzip -d newdata.gz to uncompress our gzip file.
+
+Step 13.
+We can now check to see what type of file was uncompressed.
+Type file newdata 
+We see we now have a POSIX tar archive.
+
+Step 14.
+Type man tar and we find that tar is an archiving utility and when used with -x it will extract the data, -v do it verbosely, -f will use archive file.
+Type tar -xvf newdata 
+We get data5.bin as an extracted file.
+
+Step 15.
+Now let’s see what type of file this data5.bin is.
+Type file data5.bin 
+Again we see we now have a POSIX tar archive. Like above lets untar it.
+Type tar -xvf data5.bin
+We get data6.bin as an extracted file.
+
+Step 15.
+Now let’s see what type of file this data6.bin is.
+Type file data6.bin
+Again we have a bzip2 file so let’s move and rename it.
+Type mv data6.bin data7.bz2
+Now uncompress the file.
+Type bzip2 -d data7.bz2
+We now have a new data7 file.
+
+Step 16.
+Now let’s see what type of file our data7 is.
+Type file data7
+We see we have another tar file. Lets untar it like we have above.
+Type tar -xvf data7
+We get a data8.bin file.
+
+Step 17.
+Now let’s see what type of file our data8.bin is.
+Type file data8.bin 
+We see we have another gzip file so let’s mv and rename with .gz extension.
+mv data8.bin data9.gz
+
+Step 18.
+Now we ungzip out file like before. 
+Type gzip -d data9.gz
+Then we check the uncompressed file type again.
+Type file data9
+We see we now have a readable ASCII file.
+
+Step 19.
+Now that we have an ASCII file let’s do a cat on it to display it’s contents.
+type cat data9 and we see our passoword for the next level is displayed: 
+The password is 8ZjyCRiBWFYkneahHwxCv3wb2a1ORpYL
