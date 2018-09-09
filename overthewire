@@ -1,6 +1,6 @@
 ### Bandit Level 0 → Level 1
 
-First we need to connect to the Over the Wire Bandit game with SSH port 2220. You will need a SSH client. 
+First we need to connect to the Over the Wire Bandit game with SSH port 2220. You will need an SSH client. 
 For Linux I suggest Gnome Connection Manager and for Windows I suggest Putty.
 
 Host name is bandit.labs.overthewire.org 
